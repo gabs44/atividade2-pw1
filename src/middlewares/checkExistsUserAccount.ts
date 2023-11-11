@@ -17,7 +17,6 @@ export async function checkExistsUserAccount(
       return res.status(404).json({ error: "User does not exists" });
     }
     req.user = userExists;
-    console.log(userExists)
     
     return next();
 }

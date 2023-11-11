@@ -1,14 +1,12 @@
 import {Request,Response,Router} from 'express';
 
-import {RegisterUserController} from '../controller/controllerUser';
-
 import {checkExistsUserAccount} from '../middlewares/checkExistsUserAccount';
-
 import {prisma} from '../database/repositoryClient';
+import { ControllerUser } from '../controller/controllerUser';
 
 const routesUser = Router();
 
-const registerClientController = new RegisterUserController();
-routesUser.post('/users',registerClientController.handle);
+const controllerUser = new ControllerUser()
+routesUser.post('/users',controllerUser.create);
 
 export default routesUser

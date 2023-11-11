@@ -1,15 +1,15 @@
 import {Request,Response} from 'express';
-import {RegisterUser} from '../model/RegisterUser';
+import {ServiceUser} from '../service/serviceUser';
 
-export class RegisterUserController {
-
-  async handle(req:Request,res:Response){
-    const {name, username} = req.body;
-
-    const registerUser = new RegisterUser();
-
-    const result = await registerUser.execute({name, username});
-    return res.status(200).json(result);
-
+const serviceUser = new ServiceUser()
+export class ControllerUser {
+  async create(req: Request, res: Response) {
+    const { name, username } = req.body;
+    try {
+      const result = await serviceUser.create({ name, username });
+      res.json(result);
+    } catch (error: unknown) {
+      res.status(404).json(error);
+    }
   }
 }

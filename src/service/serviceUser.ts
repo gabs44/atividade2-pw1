@@ -1,12 +1,11 @@
-import {prisma} from '../database/repositoryClient';
+import { prisma } from "../database/repositoryClient";
 
 type Params ={
   name:string;
   username:string
 }
-export class RegisterUser{
-
-  async execute({name, username}:Params){
+export class ServiceUser{
+  async create ({name, username}:Params){
 
     const client = await prisma.user.findUnique({
       where:{
@@ -14,7 +13,7 @@ export class RegisterUser{
       }
     })
     if(client !== null){
-      return {message:'client já existe'}
+      throw new Error("user alredy exists")
     }
     const UserNew = await prisma.user.create({
       data:{
