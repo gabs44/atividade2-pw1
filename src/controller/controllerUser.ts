@@ -1,5 +1,6 @@
 import {Request,Response} from 'express';
 import {ServiceUser} from '../service/serviceUser';
+import { UserError } from '../utils/errors';
 
 const serviceUser = new ServiceUser()
 export class ControllerUser {
@@ -7,9 +8,13 @@ export class ControllerUser {
     const { name, username } = req.body;
     try {
       const result = await serviceUser.create({ name, username });
-      res.json(result);
+      res.status(201).json(result);
     } catch (error: unknown) {
-      res.status(404).json(error);
+      if(error instanceof UserError){
+        res.status(400).json({error: error.message})
+      }else{
+        res.status(400).json({error: 'something went wrong'})
+      }
     }
   }
 }

@@ -1,4 +1,6 @@
 import { prisma } from "../database/repositoryClient";
+import { UserError } from "../utils/errors";
+
 
 type Params ={
   name:string;
@@ -13,7 +15,7 @@ export class ServiceUser{
       }
     })
     if(client !== null){
-      throw new Error("user alredy exists")
+      throw new UserError("user already exists")
     }
     const UserNew = await prisma.user.create({
       data:{

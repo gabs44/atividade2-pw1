@@ -3,6 +3,7 @@ import { prisma } from "../database/repositoryClient";
 import { CustomRequest } from "../interfaces/CustomRequest";
 import { UUID } from "crypto";
 import { User } from "@prisma/client";
+import { TechnologyError } from "../utils/errors";
 
 type Params ={
   title:string;
@@ -31,8 +32,17 @@ export class ServiceTechnology{
       }
   }
   async create({title, deadline, user}: Params){
-    
-    await prisma.technology.create({
+    try {
+      const existingTechnology = await prisma.technology.findFirst({
+        where:{
+          title: title != undefined ? title: "",
+          userId: user.id
+        },
+      });console.log(existingTechnology)
+      if (existingTechnology) {
+        throw new TechnologyError('Technology already exists');
+      }
+      const createTechnology = await prisma.technology.create({
         data:{
           title,
           studied: false, 
@@ -40,8 +50,16 @@ export class ServiceTechnology{
           created_at: new Date(),
           User: {
             connect: { id: user.id },
-          },
-    }})
+          }
+        }
+      })
+          return createTechnology
+    }catch(err){
+      if(err instanceof TechnologyError){
+        throw err
+      }
+      throw new Error()
+    }
 } async update({id, title, deadline, user}: Params){
   try{
     const updateTechnology = await prisma.technology.update({
@@ -61,6 +79,15 @@ export class ServiceTechnology{
   }
 } async updateMany({userId, id}: ParamsUserTech){
   try{
+    const existingTechnology = await prisma.technology.findFirst({
+      where:{
+        userId: userId,
+        id: id
+      },
+    })
+    if (!existingTechnology) {
+      throw new TechnologyError('Technology does not exist');
+    }
     const updateTechnology = await prisma.technology.updateMany({
       where: {
         userId: userId,
@@ -76,7 +103,16 @@ export class ServiceTechnology{
     throw new Error()
   }
 } async delete({userId, id}: ParamsUserTech){
-    try{
+  try{
+    const existingTechnology = await prisma.technology.findFirst({
+      where:{
+        userId: userId,
+        id: id
+      },
+    })
+    if (!existingTechnology) {
+      throw new TechnologyError('Technology does not exist');
+    }
       const deleteTechnology = await prisma.technology.delete({
       where: {
         id,
@@ -85,6 +121,6 @@ export class ServiceTechnology{
     })
     return deleteTechnology
   }catch(err){
-    console.log(err)
+    throw err
   }
 }}
